@@ -7,29 +7,32 @@ import './App.css'
 const log = console.log;
 
 function App() {
+    const [loc, setLoc] = useState('');
     const [fetchedData, setFetchedData] = useState('{"result":true, "count":42}')
-    async function getData() {
-        const url = await fetch(`http://api.weatherapi.com/v1/current.json?key=b86be9f2d5d24cd3a8081721231507&q=${loc}`, {mode: 'cors'});
+    async function getData(location) {
+        location = loc;
+        const url = await fetch(`http://api.weatherapi.com/v1/current.json?key=b86be9f2d5d24cd3a8081721231507&q=${location}`, {mode: 'cors'});
         const data = await url.json();
-        log(data)
+        await log(data)
         await setFetchedData(JSON.stringify(data));
     }
     const data = JSON.parse(fetchedData);
-    const [loc, setLoc] = useState('');
 
     const displayTemp = () => { 
-            if (data.current == undefined) {
-                return 'error'
-            } else {
-                data.current.temp_c;
-            }
+        if (data.current == undefined) {
+            return ''
+        } else {
+            return `The temperature is ${data.current.temp_c} degrees.`
         }
+    }
+    async function buttonGoVroom() {
+        await setLoc('Belgrade')
+        await getData()
+    }
+
     return (
         <>
-        <Button style="btn" className="test" value="Change Location" onBtnClick={() => {
-            setLoc(prompt())
-            getData()
-        }}/>
+        <Button style="btn" className="test" value="Change Location" onBtnClick={() => buttonGoVroom()}/>
         <div>{loc}</div>
         <div>{displayTemp()}</div>
         </>
