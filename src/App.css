@@ -1,3 +1,6 @@
+body {
+    background: #aef;
+}
 .btn {
     @apply cursor-pointer hover:bg-green-400 shadow-inner border-solid border-black border-2 rounded-xl m-2 p-2;
 }

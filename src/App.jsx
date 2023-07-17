@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import Button from './components/button.jsx'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 const log = console.log;
@@ -9,6 +8,7 @@ const log = console.log;
 function App() {
     const [loc, setLoc] = useState('');
     const [fetchedData, setFetchedData] = useState([])
+    const { register, handleSubmit, formState:{errors} } = useForm();
     useEffect(() => {
         if (loc === '') {
             return
@@ -22,22 +22,51 @@ function App() {
         }
     }, [loc]);
 
-    const displayTemp = () => { 
+    const displayData = () => { 
         if (fetchedData[0] === undefined) {
-            log('oops')
-            return ''
+            return [];
         } else {
-            return `The temperature is ${fetchedData[0].current.temp_c} degrees.`
+            function addKey(dataPoint) {
+                const key = () => {
+                    return btoa(`${dataPoint}`)
+                }
+                const id = key(dataPoint)
+                return {
+                    id,
+                    dataPoint
+                }
+            }
+            const temp = addKey(fetchedData[0].current.temp_c)
+            const condition = addKey(fetchedData[0].current.condition.text)
+            log([temp, condition])
+            return [temp, condition]
         }
+    }
+    const onSubmit = (data) => {
+        setLoc(data.changeLoc)
+        log(data.changeLoc)
     }
 
     return (
         <>
-        <Button style="btn" className="test" value="Change Location" onBtnClick={() => setLoc(prompt())}/>
+        <form onSubmit={handleSubmit(onSubmit)}>
+        <label>Enter Location: </label>
+        <input name="changeLoc" {...register("changeLoc", {required: true})} />
+        <div></div>
+        <input {...register("Temperature Scale")} type="radio" value="C" />
+        <input {...register("Temperature Scale")} type="radio" value="F" />
+        </form>
         <div>{loc}</div>
-        <div>{displayTemp()}</div>
+        <div>{displayData().map(el => {
+            return (
+                <li key={el.id}>{
+                    el.dataPoint
+                }</li>
+            )
+        })}</div>
         </>
     )
 }
+//    <Button style="btn" className="test" value="Change Location" onBtnClick={() => setLoc(prompt())}/>
 
 export default App
