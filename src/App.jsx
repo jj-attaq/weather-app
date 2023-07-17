@@ -8,7 +8,14 @@ const log = console.log;
 function App() {
     const [loc, setLoc] = useState('');
     const [fetchedData, setFetchedData] = useState([])
-    const { register, handleSubmit, formState:{errors} } = useForm();
+    const form  = useForm({
+        defaultValues: {
+            scale: "C"
+        },
+        mode: "onChange"
+    });
+
+    const { register, handleSubmit, formState:{errors} } = form;
     useEffect(() => {
         if (loc === '') {
             return
@@ -36,10 +43,10 @@ function App() {
                     dataPoint
                 }
             }
-            const temp = addKey(fetchedData[0].current.temp_c)
+            const temp = form.watch().scale ==='C' ? addKey(fetchedData[0].current.temp_c) : addKey(fetchedData[0].current.temp_f);
             const condition = addKey(fetchedData[0].current.condition.text)
             log([temp, condition])
-            return [temp, condition]
+            return [temp, condition];
         }
     }
     const onSubmit = (data) => {
@@ -50,11 +57,15 @@ function App() {
     return (
         <>
         <form onSubmit={handleSubmit(onSubmit)}>
-        <label>Enter Location: </label>
-        <input name="changeLoc" {...register("changeLoc", {required: true})} />
+        <label htmlFor="changeLoc">Enter Location: </label>
+        <input id="changeLoc" name="changeLoc" {...register("changeLoc", {required: true})} />
         <div></div>
-        <input {...register("Temperature Scale")} type="radio" value="C" />
-        <input {...register("Temperature Scale")} type="radio" value="F" />
+        
+        <input {...register("scale")} id="celsius" type="radio" value="C" />
+        <label htmlFor="celsius"> Celsius</label> 
+        <div></div>
+        <input {...register("scale")} id="fahrenheit" type="radio" value="F" />
+        <label htmlFor="fahrenheit"> Fahrenheit</label> 
         </form>
         <div>{loc}</div>
         <div>{displayData().map(el => {
@@ -64,6 +75,9 @@ function App() {
                 }</li>
             )
         })}</div>
+        <footer>Powered by <a href="https://www.weatherapi.com/" title="Free Weather API">WeatherAPI.com</a>
+
+</footer>
         </>
     )
 }
